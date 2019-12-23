@@ -50,12 +50,14 @@ fun ConeKotlinType.scope(useSiteSession: FirSession, scopeSession: ScopeSession)
         )
         is ConeDefinitelyNotNullType -> original.scope(useSiteSession, scopeSession)
         is ConeIntegerLiteralType -> {
+
+            @Suppress("USELESS_CAST") // TODO: remove once fixed: https://youtrack.jetbrains.com/issue/KT-35635
             scopeSession.getOrBuild(
                 FirIntegerLiteralTypeScope.ILT_SYMBOL,
                 FirIntegerLiteralTypeScope.SCOPE_SESSION_KEY
             ) {
                 FirIntegerLiteralTypeScope(useSiteSession)
-            }
+            } as FirScope
         }
         else -> error("Failed type $this")
     }
