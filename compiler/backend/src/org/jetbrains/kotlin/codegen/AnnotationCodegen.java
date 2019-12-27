@@ -530,7 +530,7 @@ public abstract class AnnotationCodegen {
     }
 
     @NotNull
-    private static RetentionPolicy getRetentionPolicy(@NotNull Annotated descriptor) {
+    public static RetentionPolicy getRetentionPolicy(@NotNull Annotated descriptor) {
         KotlinRetention retention = DescriptorUtilsKt.getAnnotationRetention(descriptor);
         if (retention != null) {
             return annotationRetentionMap.get(retention);

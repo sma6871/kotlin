@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.codegen.state.TypeMapperUtilsKt;
 import org.jetbrains.kotlin.config.JvmDefaultMode;
 import org.jetbrains.kotlin.config.LanguageFeature;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.annotations.Annotated;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor;
 import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature;
@@ -63,9 +62,11 @@ import org.jetbrains.org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.annotation.RetentionPolicy;
 import java.util.*;
 
 import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.isNullableAny;
+import static org.jetbrains.kotlin.codegen.AnnotationCodegen.getRetentionPolicy;
 import static org.jetbrains.kotlin.codegen.AsmUtil.*;
 import static org.jetbrains.kotlin.codegen.CodegenUtilKt.generateBridgeForMainFunctionIfNecessary;
 import static org.jetbrains.kotlin.codegen.serialization.JvmSerializationBindings.METHOD_FOR_FUNCTION;
@@ -74,6 +75,7 @@ import static org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.DEC
 import static org.jetbrains.kotlin.descriptors.ModalityKt.isOverridable;
 import static org.jetbrains.kotlin.resolve.DescriptorToSourceUtils.getSourceFromDescriptor;
 import static org.jetbrains.kotlin.resolve.DescriptorUtils.*;
+import static org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt.getAnnotationClass;
 import static org.jetbrains.kotlin.resolve.inline.InlineOnlyKt.isEffectivelyInlineOnly;
 import static org.jetbrains.kotlin.resolve.inline.InlineOnlyKt.isInlineOnlyPrivateInBytecode;
 import static org.jetbrains.kotlin.resolve.jvm.AsmTypes.OBJECT_TYPE;
@@ -531,7 +533,7 @@ public class FunctionCodegen {
                 continue;
             }
 
-            Annotated annotated =
+            ParameterDescriptor annotated =
                     kind == JvmMethodParameterKind.VALUE
                     ? iterator.next()
                     : kind == JvmMethodParameterKind.RECEIVER
@@ -540,8 +542,29 @@ public class FunctionCodegen {
 
             if (annotated != null) {
                 //noinspection ConstantConditions
-                AnnotationCodegen.forParameter(i - syntheticParameterCount, mv, innerClassConsumer, state)
+                int parameterIndex = i - syntheticParameterCount;
+                AnnotationCodegen.forParameter(parameterIndex, mv, innerClassConsumer, state)
                         .genAnnotations(annotated, parameterSignature.getAsmType());
+
+                Iterable<TypePathInfo> infos =
+                        new Translator().collectTypeAnnotations(annotated.getType(), TypeReference.METHOD_FORMAL_PARAMETER);
+                for (TypePathInfo info : infos) {
+                    //innerClassConsumer.addInnerClassInfoFromAnnotation(classDescriptor);
+
+                    for (AnnotationDescriptor annotationDescriptor : info.getAnnotations()) {
+                        ClassDescriptor classDescriptor = getAnnotationClass(annotationDescriptor);
+                        assert classDescriptor != null : "Annotation descriptor has no class: " + annotationDescriptor;
+                        RetentionPolicy rp = getRetentionPolicy(classDescriptor);
+                        if (rp == RetentionPolicy.SOURCE && !state.getTypeMapper().getClassBuilderMode().generateSourceRetentionAnnotations) {
+                            continue;
+                        }
+
+                        String descriptor = state.getTypeMapper().mapType(annotationDescriptor.getType()).getDescriptor();
+
+                        mv.visitTypeAnnotation(TypeReference.newFormalParameterReference(parameterIndex).getValue(), info.getPath(),
+                                               descriptor, rp == RetentionPolicy.RUNTIME);
+                    }
+                }
             }
         }
     }
