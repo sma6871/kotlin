@@ -127,15 +127,6 @@ class FirLibrarySymbolProviderImpl(val session: FirSession, val kotlinScopeProvi
         }
     }
 
-    override fun getClassUseSiteMemberScope(
-        classId: ClassId,
-        useSiteSession: FirSession,
-        scopeSession: ScopeSession
-    ): FirScope? {
-        val symbol = this.getClassLikeSymbolByFqName(classId) ?: return null
-        return buildDefaultUseSiteMemberScope(symbol.fir, useSiteSession, scopeSession)
-    }
-
     override fun getPackage(fqName: FqName): FqName? {
         if (allPackageFragments.containsKey(fqName)) return fqName
         return null

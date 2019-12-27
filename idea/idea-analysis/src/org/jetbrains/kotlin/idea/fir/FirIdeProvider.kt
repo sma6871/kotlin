@@ -147,9 +147,4 @@ class FirIdeProvider(
         getFirClassifierByFqName(classId)
         return cacheProvider.getNestedClassifierScope(classId)
     }
-
-    override fun getClassUseSiteMemberScope(classId: ClassId, useSiteSession: FirSession, scopeSession: ScopeSession): FirScope? {
-        getFirClassifierByFqName(classId)
-        return cacheProvider.getClassUseSiteMemberScope(classId, useSiteSession, scopeSession)
-    }
 }

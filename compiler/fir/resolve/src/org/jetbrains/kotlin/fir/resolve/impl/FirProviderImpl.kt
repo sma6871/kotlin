@@ -216,25 +216,6 @@ class FirProviderImpl(val session: FirSession, val kotlinScopeProvider: KotlinSc
             state.setFrom(newState)
         }
     }
-
-    override fun getClassUseSiteMemberScope(
-        classId: ClassId,
-        useSiteSession: FirSession,
-        scopeSession: ScopeSession
-    ): FirScope? {
-        return when (val symbol = this.getClassLikeSymbolByFqName(classId) ?: return null) {
-            is FirRegularClassSymbol -> buildDefaultUseSiteMemberScope(symbol.fir, useSiteSession, scopeSession)
-            is FirAnonymousObjectSymbol -> buildDefaultUseSiteMemberScope(symbol.fir, useSiteSession, scopeSession)
-            is FirTypeAliasSymbol -> {
-                val expandedTypeRef = symbol.fir.expandedTypeRef as FirResolvedTypeRef
-                val expandedType = expandedTypeRef.type as? ConeLookupTagBasedType ?: return null
-                val lookupTag = expandedType.lookupTag as? ConeClassLikeLookupTag ?: return null
-                getClassUseSiteMemberScope(lookupTag.classId, useSiteSession, scopeSession)
-            }
-            else -> throw IllegalArgumentException("Unexpected FIR symbol in getClassUseSiteMemberScope: $symbol")
-        }
-    }
-
 }
 
 private const val rebuildIndex = true

@@ -143,16 +143,6 @@ class KotlinDeserializedJvmSymbolsProvider(
     private val KotlinJvmBinaryClass.isPreReleaseInvisible: Boolean
         get() = classHeader.isPreRelease
 
-    override fun getClassUseSiteMemberScope(
-        classId: ClassId,
-        useSiteSession: FirSession,
-        scopeSession: ScopeSession
-    ): FirScope? {
-        val symbol = this.getClassLikeSymbolByFqName(classId) as? FirClassSymbol ?: return null
-        if (classId in handledByJava) return null
-        return buildDefaultUseSiteMemberScope((symbol.fir as FirClass<*>), useSiteSession, scopeSession)
-    }
-
     override fun getClassLikeSymbolByFqName(classId: ClassId): FirClassLikeSymbol<*>? {
         return findAndDeserializeClass(classId) ?: findAndDeserializeTypeAlias(classId)
     }

@@ -58,12 +58,6 @@ abstract class FirSymbolProvider : FirSessionComponent {
 
     abstract fun getNestedClassifierScope(classId: ClassId): FirScope?
 
-    abstract fun getClassUseSiteMemberScope(
-        classId: ClassId,
-        useSiteSession: FirSession,
-        scopeSession: ScopeSession
-    ): FirScope?
-
     fun buildDefaultUseSiteMemberScope(klass: FirClass<*>, useSiteSession: FirSession, scopeSession: ScopeSession): FirScope {
         TODO("REMOVE")
     }

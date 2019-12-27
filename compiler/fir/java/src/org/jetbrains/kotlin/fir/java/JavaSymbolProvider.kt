@@ -80,15 +80,6 @@ class JavaSymbolProvider(
         }
     }
 
-    override fun getClassUseSiteMemberScope(
-        classId: ClassId,
-        useSiteSession: FirSession,
-        scopeSession: ScopeSession
-    ): FirScope? {
-        TODO("Remove")
-    }
-
-
     private fun JavaTypeParameter.toFirTypeParameter(javaTypeParameterStack: JavaTypeParameterStack): FirTypeParameter {
         val stored = javaTypeParameterStack.safeGet(this)
         if (stored != null) return stored.fir
