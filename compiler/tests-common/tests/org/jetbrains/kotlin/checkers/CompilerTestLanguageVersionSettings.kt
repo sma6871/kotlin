@@ -25,7 +25,7 @@ const val INHERIT_MULTIFILE_PARTS = "INHERIT_MULTIFILE_PARTS"
 const val SANITIZE_PARENTHESES = "SANITIZE_PARENTHESES"
 const val CONSTRAINT_SYSTEM_FOR_OVERLOAD_RESOLUTION = "CONSTRAINT_SYSTEM_FOR_OVERLOAD_RESOLUTION"
 
-data class CompilerTestLanguageVersionSettings(
+data class CompilerTestLanguageVersionSettings @JvmOverloads constructor(
         private val initialLanguageFeatures: Map<LanguageFeature, LanguageFeature.State>,
         override val apiVersion: ApiVersion,
         override val languageVersion: LanguageVersion,

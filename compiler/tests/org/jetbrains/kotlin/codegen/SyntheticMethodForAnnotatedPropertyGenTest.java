@@ -17,18 +17,37 @@
 package org.jetbrains.kotlin.codegen;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.checkers.CompilerTestLanguageVersionSettings;
+import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
+import org.jetbrains.kotlin.config.*;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.test.ConfigurationKind;
+import org.jetbrains.kotlin.test.TestJdkKind;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 
 public class SyntheticMethodForAnnotatedPropertyGenTest extends CodegenTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        createEnvironmentWithMockJdkAndIdeaAnnotations(ConfigurationKind.JDK_ONLY);
+
+        CompilerConfiguration configuration = createConfiguration(
+                ConfigurationKind.JDK_ONLY, TestJdkKind.MOCK_JDK, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()
+        );
+
+        CommonConfigurationKeysKt.setLanguageVersionSettings(configuration, new CompilerTestLanguageVersionSettings(
+                Collections.singletonMap(
+                        LanguageFeature.UseGetterNameForPropertyAnnotationsMethodOnJvm, LanguageFeature.State.ENABLED
+                ),
+                ApiVersion.LATEST_STABLE, LanguageVersion.LATEST_STABLE
+        ));
+
+        myEnvironment =
+                KotlinCoreEnvironment.createForTests(getTestRootDisposable(), configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES);
     }
 
     @NotNull
@@ -37,7 +56,7 @@ public class SyntheticMethodForAnnotatedPropertyGenTest extends CodegenTestCase 
         return "properties/syntheticMethod";
     }
 
-    private static final String TEST_SYNTHETIC_METHOD_NAME = JvmAbi.getSyntheticMethodNameForAnnotatedProperty("property");
+    private static final String TEST_SYNTHETIC_METHOD_NAME = JvmAbi.getSyntheticMethodNameForAnnotatedProperty("getProperty");
 
     public void testInClass() {
         loadFile();
