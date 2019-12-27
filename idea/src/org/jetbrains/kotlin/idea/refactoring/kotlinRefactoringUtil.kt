@@ -41,6 +41,7 @@ import com.intellij.refactoring.BaseRefactoringProcessor.ConflictsInTestsExcepti
 import com.intellij.refactoring.changeSignature.ChangeSignatureUtil
 import com.intellij.refactoring.listeners.RefactoringEventData
 import com.intellij.refactoring.listeners.RefactoringEventListener
+import com.intellij.refactoring.rename.PsiElementRenameHandler
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.util.ConflictsUtil
 import com.intellij.refactoring.util.RefactoringUIUtil
@@ -967,8 +968,13 @@ fun checkSuperMethodsWithPopup(
         .setRequestFocus(true)
         .setItemChoosenCallback {
             val value = list.selectedValue ?: return@setItemChoosenCallback
-            val chosenElements = if (value == renameBase) deepestSuperMethods + declaration else listOf(declaration)
-            action(chosenElements)
+
+            if (value == renameBase) {
+                val ableToRename = declaration.project.let { project ->
+                    deepestSuperMethods.all { PsiElementRenameHandler.canRename(project, editor, it) }
+                }
+                if (ableToRename) action(deepestSuperMethods + declaration)
+            } else action(listOf(declaration))
         }
         .createPopup()
         .showInBestPositionFor(editor)
