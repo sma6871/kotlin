@@ -105,6 +105,8 @@ dependencies {
     implementation("org.jetbrains.intellij.deps:asm-all:7.0.1")
 
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:0.5")
+
+    implementation("org.gradle:test-retry-gradle-plugin:1.0.0")
 }
 
 samWithReceiver {
