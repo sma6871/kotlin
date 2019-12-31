@@ -539,6 +539,7 @@ fun PsiExpression.getTypeConversionMethod(expectedType: PsiType): String? {
     if (actualType == expectedType) return null
     if (expectedType.canonicalText == CommonClassNames.JAVA_LANG_STRING) return "toString"
     return when (expectedType) {
+        PsiType.BOOLEAN -> "toBoolean"
         PsiType.BYTE -> "toByte"
         PsiType.SHORT -> "toShort"
         PsiType.INT -> "toInt"
@@ -560,6 +561,7 @@ fun PsiType.needTypeConversion(expected: PsiType): Boolean {
 
 private val typeConversionMap: Map<String, String> = mapOf(
         CommonClassNames.JAVA_LANG_BYTE to "byte",
+        CommonClassNames.JAVA_LANG_BOOLEAN to "boolean",
         CommonClassNames.JAVA_LANG_SHORT to "short",
         CommonClassNames.JAVA_LANG_INTEGER to "int",
         CommonClassNames.JAVA_LANG_LONG to "long",
