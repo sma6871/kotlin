@@ -9,10 +9,13 @@ import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.inferenceContext
 import org.jetbrains.kotlin.fir.scopes.FirScope
-import org.jetbrains.kotlin.fir.scopes.impl.*
+import org.jetbrains.kotlin.fir.scopes.impl.FirClassSubstitutionScope
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.inferenceContext
+import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
+import org.jetbrains.kotlin.fir.scopes.scope
 import org.jetbrains.kotlin.fir.types.*
 
 abstract class SupertypeSupplier {
@@ -37,44 +40,24 @@ fun lookupSuperTypes(
     }
 }
 
-class ScopeSession {
-    private val scopes = hashMapOf<Any, HashMap<ScopeSessionKey<*, *>, FirScope>>()
-    fun <ID : Any, FS : FirScope> getOrBuild(id: ID, key: ScopeSessionKey<ID, FS>, build: () -> FS): FS {
-        return scopes.getOrPut(id) {
-            hashMapOf()
-        }.getOrPut(key) {
-            build()
-        } as FS
-    }
-}
-
-abstract class ScopeSessionKey<ID : Any, FS : FirScope>
-
 inline fun <reified ID : Any, reified FS : FirScope> scopeSessionKey(): ScopeSessionKey<ID, FS> {
     return object : ScopeSessionKey<ID, FS>() {}
 }
 
 val USE_SITE = scopeSessionKey<FirClassSymbol<*>, FirScope>()
 
-data class SubstitutionScopeKey(val type: ConeClassLikeType) : ScopeSessionKey<FirClassLikeSymbol<*>, FirClassSubstitutionScope>() {}
+data class SubstitutionScopeKey(val type: ConeClassLikeType) : ScopeSessionKey<FirClassLikeSymbol<*>, FirClassSubstitutionScope>()
 
 fun FirClassSymbol<*>.buildUseSiteMemberScope(useSiteSession: FirSession, builder: ScopeSession): FirScope? {
-    return when (this) {
-        is FirAnonymousObjectSymbol -> useSiteSession.firSymbolProvider.buildDefaultUseSiteMemberScope(fir, useSiteSession, builder)
-        is FirRegularClassSymbol -> fir.buildUseSiteMemberScope(useSiteSession, builder)
-    }
+    return this.fir.buildUseSiteMemberScope(useSiteSession, builder)
 }
 
 fun FirClass<*>.buildUseSiteMemberScope(useSiteSession: FirSession, builder: ScopeSession): FirScope? {
-    if (classId.isLocal) {
-        // It's not possible to find local class by symbol
-        return useSiteSession.firSymbolProvider.buildDefaultUseSiteMemberScope(this, useSiteSession, builder)
-    }
-    val symbolProvider = useSiteSession.firSymbolProvider
-    return symbolProvider.getClassUseSiteMemberScope(classId, useSiteSession, builder)
+    return this.scope(ConeSubstitutor.Empty, useSiteSession, builder)
 }
 
-private fun createSubstitution(
+/* TODO REMOVE */
+fun createSubstitution(
     typeParameters: List<FirTypeParameter>,
     typeArguments: Array<out ConeKotlinTypeProjection>,
     session: FirSession

@@ -186,6 +186,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             runTest("compiler/testData/codegen/box/annotations/singleAssignmentToVarargInAnnotation.kt");
         }
 
+        @TestMetadata("syntheticMethodForProperty.kt")
+        public void testSyntheticMethodForProperty() throws Exception {
+            runTest("compiler/testData/codegen/box/annotations/syntheticMethodForProperty.kt");
+        }
+
         @TestMetadata("typeAnnotationOnJdk6.kt")
         public void testTypeAnnotationOnJdk6() throws Exception {
             runTest("compiler/testData/codegen/box/annotations/typeAnnotationOnJdk6.kt");
@@ -27116,6 +27121,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
         @TestMetadata("doNotCopyImmediatelyCreatedArrays.kt")
         public void testDoNotCopyImmediatelyCreatedArrays() throws Exception {
             runTest("compiler/testData/codegen/box/vararg/doNotCopyImmediatelyCreatedArrays.kt");
+        }
+
+        @TestMetadata("emptyVarargOfBoxedPrimitiveType.kt")
+        public void testEmptyVarargOfBoxedPrimitiveType() throws Exception {
+            runTest("compiler/testData/codegen/box/vararg/emptyVarargOfBoxedPrimitiveType.kt");
         }
 
         @TestMetadata("kt1978.kt")
