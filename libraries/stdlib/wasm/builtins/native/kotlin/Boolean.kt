@@ -50,6 +50,10 @@ public class Boolean private constructor() : Comparable<Boolean> {
     public override fun compareTo(other: Boolean): Int =
         wasm_i32_compareTo(this.asInt(), other.asInt())
 
+    /** Returns this value. */
+    public inline fun toBoolean(): Boolean =
+        this
+
     @WasmInstruction(WasmInstruction.NOP)
     internal fun asInt(): Int
 

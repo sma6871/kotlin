@@ -45,6 +45,8 @@ public class Boolean private constructor() : Comparable<Boolean> {
 
     public override fun compareTo(other: Boolean): Int
 
+    public fun toBoolean(): Boolean
+
     @SinceKotlin("1.3")
     companion object {}
 }

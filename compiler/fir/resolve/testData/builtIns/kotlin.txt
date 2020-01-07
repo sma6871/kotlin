@@ -67,6 +67,8 @@ public final class Boolean : R|kotlin/Comparable<kotlin/Boolean>| {
 
     public final infix fun xor(other: R|kotlin/Boolean|): R|kotlin/Boolean|
 
+    public fun toBoolean(): R|kotlin/Boolean|
+
     private constructor(): R|kotlin/Boolean|
 
     @R|kotlin/SinceKotlin|(version = String(1.3)) public final companion object Companion : R|kotlin/Any| {
